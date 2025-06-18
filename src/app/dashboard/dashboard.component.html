@@ -1,0 +1,86 @@
+<div class="container mt-4" style="max-width: 700px;">
+
+  <!-- Başlık ve Çıkış -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="text-center flex-grow-1">📋 Görev Takip Paneli</h2>
+    <div class="ms-3">
+      <button class="btn btn-outline-danger btn-sm" (click)="onLogout()">
+        <i class="bi bi-box-arrow-right"></i> Çıkış
+      </button>
+    </div>
+  </div>
+
+  <!-- Görev Ekleme Kartı -->
+  <div class="card mb-3 p-3 shadow-sm">
+    <input [(ngModel)]="newTask" class="form-control mb-2" placeholder="Yeni görev girin">
+    <select [(ngModel)]="newCategory" class="form-select mb-2">
+      <option value="" disabled selected>Kategori seç</option>
+      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+    </select>
+    <input [(ngModel)]="newDeadline" type="date" class="form-control mb-2" placeholder="Deadline (isteğe bağlı)">
+    <button class="btn btn-success w-100" (click)="addTask()">
+      <i class="bi bi-plus-lg"></i> Görev Ekle
+    </button>
+  </div>
+
+  <!-- Filtre ve Arama Alanı -->
+  <div class="d-flex gap-2 mb-3">
+    <select [(ngModel)]="selectedCategory" class="form-select" (change)="filterTasks()" style="width: 50%;">
+      <option value="">Tüm Kategoriler</option>
+      <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+    </select>
+    <input
+      [(ngModel)]="searchTerm"
+      (input)="filterTasks()"
+      type="text"
+      class="form-control"
+      placeholder="Görev ara..."
+    />
+  </div>
+
+  <!-- Görev Listesi -->
+  <ul class="list-group">
+    <li *ngFor="let task of filteredTasks" class="list-group-item d-flex justify-content-between align-items-start flex-column">
+      
+      <!-- Başlık veya düzenleme -->
+      <div class="d-flex w-100 justify-content-between align-items-center">
+        <div class="flex-grow-1">
+          <span *ngIf="!task.editing" [class.text-decoration-line-through]="task.completed">
+            {{ task.title }} <small class="text-muted">({{ task.category }})</small>
+          </span>
+          <input *ngIf="task.editing" [(ngModel)]="task.title" class="form-control form-control-sm mb-1">
+        </div>
+        <div class="ms-2">
+          <button *ngIf="!task.editing" class="btn btn-sm btn-outline-primary me-1" (click)="editTask(task)">
+            ✏️
+          </button>
+          <button *ngIf="task.editing" class="btn btn-sm btn-success me-1" (click)="saveTask(task)">
+            💾
+          </button>
+          <button class="btn btn-sm btn-outline-danger" (click)="deleteTask(task.id!)">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <!-- Deadline ve Tamamla Butonları -->
+      <div class="d-flex w-100 justify-content-between align-items-center mt-2">
+        <div [ngClass]="{
+            'text-danger': isDeadlineUrgent(task.dueDate),
+            'text-warning': isDeadlineSoon(task.dueDate)
+          }">
+          ⏰ Deadline: {{ task.dueDate || 'Yok' }}
+        </div>
+        <button class="btn btn-sm btn-outline-success" (click)="toggleComplete(task)">
+          {{ task.completed ? 'Geri Al' : 'Tamamla' }}
+        </button>
+      </div>
+    </li>
+  </ul>
+
+  <!-- Boş Durum -->
+  <div *ngIf="filteredTasks.length === 0" class="text-center mt-4 text-muted">
+    <i class="bi bi-emoji-frown"></i> Görev bulunamadı.
+  </div>
+
+</div>
